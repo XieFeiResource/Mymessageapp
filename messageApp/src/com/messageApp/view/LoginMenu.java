@@ -1,12 +1,14 @@
 package com.messageApp.view;
 
-import java.awt.CardLayout;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Point;
-import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -16,8 +18,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JTextField;
 import javax.swing.event.MouseInputListener;
+
+import com.message.serverconfig.SocketConfig;
 
 public class LoginMenu extends JFrame{
 	private JLabel jb;
@@ -26,7 +29,7 @@ public class LoginMenu extends JFrame{
 	private JLabel jb3;
 	private JLabel jb4;
 	private JLabel jb5;
-	private Container c;
+	private JPanel c;
 	private JComboBox jf;
 	private JPasswordField jf1;
 	private JCheckBox jc;
@@ -35,31 +38,26 @@ public class LoginMenu extends JFrame{
 
 	public LoginMenu() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setUndecorated(true);
+		setUndecorated(true);//使Jframe的上面的菜单隐藏
 		setSize(280, 480);
 		setVisible(true);
-		setLocationRelativeTo(null);
+		setLocationRelativeTo(null);//使Jframe运行时在桌面正中间显示
 		setLayout(null);
-		setResizable(false);
-		setBak(); // 调用背景方法
-		c = getContentPane(); // 获取JFrame面板
+		c = (JPanel)getContentPane(); // 获取JFrame面板
+		c.setOpaque(false);//把JPanel设置为透明 这样就不会遮住后面的背景 这样就能在JPanel随意加组件了
 		MouseEventListener mouseListener = new MouseEventListener(this);
-		c.addMouseListener(mouseListener);
+		c.addMouseListener(mouseListener);//给Jframe添加随鼠标移动事件
 		c.addMouseMotionListener(mouseListener);
-		JPanel jp = new JPanel(); // 创建个JPanel
-		jp.setOpaque(false); // 把JPanel设置为透明 这样就不会遮住后面的背景 这样你就能在JPanel随意加组件了
-		c.add(jp);
 		init();
+		setBackground(); // 调用背景方法
 		paintComponents(getGraphics());
 		printAll(getGraphics());
 	}
 
-	public void setBak() {
+	public void setBackground() {
 		ImageIcon icon = new ImageIcon("resources/images/beijin.jpg"); //添加图片
-		JPanel j = (JPanel) this.getContentPane();
-		j.setOpaque(false);
 		JLabel background = new JLabel(icon);
-		this.getLayeredPane().add(background, new Integer(Integer.MIN_VALUE));
+		this.getLayeredPane().add(background, new Integer(Integer.MIN_VALUE));//把背景图片添加到分层窗格的最底层作为背景
 		background.setBounds(0, 0, icon.getIconWidth(), icon.getIconHeight());
 	}
 	public void init() {
@@ -149,6 +147,8 @@ public class LoginMenu extends JFrame{
 		jbt = new JButton("登录");
 		jbt.setBackground(getBackground().GREEN);
 		jbt.setBounds(25, 310, 80, 30);
+		Mouseclickevent actionListener=new Mouseclickevent();
+		jbt.addActionListener(actionListener);
 		c.add(jbt);
 		
 		jbt = new JButton("注册");
@@ -158,9 +158,7 @@ public class LoginMenu extends JFrame{
 	}
 
 	class MouseEventListener implements MouseInputListener {
-
 		Point origin;
-		// 鼠标拖拽想要移动的目标组件
 		LoginMenu frame;
 
 		public MouseEventListener(LoginMenu frame) {
@@ -198,7 +196,25 @@ public class LoginMenu extends JFrame{
 		@Override
 		public void mouseMoved(MouseEvent e) {
 		}
-
+	}
+	class Mouseclickevent implements ActionListener{
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				Socket client=new Socket(SocketConfig.serverIP, SocketConfig.port);//点击登录，连接服务器
+			} catch (UnknownHostException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			LoginMenu.this.dispose();
+			ListMenu listmenu=new ListMenu();
+			listmenu.setVisible(true);
+		}
+		
 	}
 public static void main(String[] args) {
 	LoginMenu m=new LoginMenu();

@@ -45,7 +45,9 @@ public class ListMenu extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setIconImage(Toolkit.getDefaultToolkit().getImage("resources/images/tittle.jpeg"));
 		setTitle("蜡笔畅聊");
-		setBounds(100, 100, 318, 542);
+		setResizable(false);//不可改变窗体大小
+		setSize(318, 542);
+		setLocationRelativeTo(null);//使Jframe运行时在桌面正中间显示
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -59,6 +61,7 @@ public class ListMenu extends JFrame {
 		tabbedPane.addTab("会话",new ImageIcon("resources/images/会话.png"), scrollPane, "会话");
 		
 		JTree tree = new JTree();
+		tree.putClientProperty("JTree.lineStyle","None");
 		tree.setModel(new DefaultTreeModel(
 			new DefaultMutableTreeNode("JTree1") {
 				{

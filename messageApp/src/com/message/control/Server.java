@@ -16,15 +16,19 @@ public class Server {
 			e.printStackTrace();
 		}
 	}
+
 	public void StartService() {
-		try {
-			Socket client=server.accept();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		while (true) {
+			try {
+				Socket serversocket = server.accept();
+				System.out.println("有人来了");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	public static void main(String[] args) {
-		
+		new Server().StartService();
 	}
 }
