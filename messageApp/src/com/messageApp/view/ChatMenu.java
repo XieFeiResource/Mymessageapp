@@ -1,6 +1,7 @@
 package com.messageApp.view;
 
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -35,6 +36,8 @@ public class ChatMenu extends JFrame {
 	 */
 	public ChatMenu() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setIconImage(Toolkit.getDefaultToolkit().getImage("resources/images/tittle.jpeg"));
+		setTitle("蜡笔畅聊");
 		setBounds(100, 100, 517, 441);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
