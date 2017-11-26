@@ -4,11 +4,13 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -20,6 +22,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.event.MouseInputListener;
 
+import com.message.control.DatabaseOperation;
+import com.message.loginmenu.model.ArrayListComboBoxModel;
 import com.message.serverconfig.SocketConfig;
 
 public class LoginMenu extends JFrame{
@@ -35,7 +39,8 @@ public class LoginMenu extends JFrame{
 	private JCheckBox jc;
 	private JCheckBox jc1;
 	private JButton jbt;
-
+	private String password;
+	private String account;
 	public LoginMenu() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setUndecorated(true);//使Jframe的上面的菜单隐藏
@@ -115,9 +120,14 @@ public class LoginMenu extends JFrame{
 		});
 		c.add(jb5);
 
-		jf = new JComboBox();
+		List<String> list=new ArrayList<>();
+		list.add("88888888");
+		ArrayListComboBoxModel model=new ArrayListComboBoxModel(list);
+		jf = new JComboBox(model);
 		jf.setEditable(true);
 		jf.setBounds(75, 220, 170, 25);
+		account=(String) jf.getSelectedItem();
+		System.out.println(account);
 		c.add(jf);
 
 		jb1 = new JLabel("密码 : ");
@@ -126,6 +136,14 @@ public class LoginMenu extends JFrame{
 
 		jf1 = new JPasswordField();
 		jf1.setBounds(75, 250, 170, 25);
+		jf1.addFocusListener(new FocusListener() {
+			public void focusLost(FocusEvent e) {
+				password=jf1.getText();
+			}
+			public void focusGained(FocusEvent e) {
+				
+			}
+		});
 		c.add(jf1);
 
 		jc = new JCheckBox();
@@ -203,13 +221,11 @@ public class LoginMenu extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			try {
 				Socket client=new Socket(SocketConfig.serverIP, SocketConfig.port);//点击登录，连接服务器
-			} catch (UnknownHostException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (IOException e1) {
+			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			DatabaseOperation.Login(account, password);
 			LoginMenu.this.dispose();
 			ListMenu listmenu=new ListMenu();
 			listmenu.setVisible(true);
