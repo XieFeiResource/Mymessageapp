@@ -34,8 +34,8 @@ public class LoginMenu extends JFrame{
 	private JLabel jb4;
 	private JLabel jb5;
 	private JPanel c;
-	private JComboBox jf;
-	private JPasswordField jf1;
+	private JComboBox jaccount;
+	private JPasswordField jpassword;
 	private JCheckBox jc;
 	private JCheckBox jc1;
 	private JButton jbt;
@@ -123,28 +123,18 @@ public class LoginMenu extends JFrame{
 		List<String> list=new ArrayList<>();
 		list.add("88888888");
 		ArrayListComboBoxModel model=new ArrayListComboBoxModel(list);
-		jf = new JComboBox(model);
-		jf.setEditable(true);
-		jf.setBounds(75, 220, 170, 25);
-		account=(String) jf.getSelectedItem();
-		System.out.println(account);
-		c.add(jf);
+		jaccount = new JComboBox(model);
+		jaccount.setEditable(true);
+		jaccount.setBounds(75, 220, 170, 25);
+		c.add(jaccount);
 
 		jb1 = new JLabel("密码 : ");
 		jb1.setBounds(25, 250, 60, 25);
 		c.add(jb1);
 
-		jf1 = new JPasswordField();
-		jf1.setBounds(75, 250, 170, 25);
-		jf1.addFocusListener(new FocusListener() {
-			public void focusLost(FocusEvent e) {
-				password=jf1.getText();
-			}
-			public void focusGained(FocusEvent e) {
-				
-			}
-		});
-		c.add(jf1);
+		jpassword = new JPasswordField();
+		jpassword.setBounds(75, 250, 170, 25);
+		c.add(jpassword);
 
 		jc = new JCheckBox();
 		jc.setBounds(30, 285, 18, 15);
@@ -219,7 +209,11 @@ public class LoginMenu extends JFrame{
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			try {
+			String account=jaccount.getSelectedItem().toString().trim();
+			String password=jpassword.getText().toString().trim();
+			System.out.println(account);
+			System.out.println(password);
+			/*try {
 				Socket client=new Socket(SocketConfig.serverIP, SocketConfig.port);//点击登录，连接服务器
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
@@ -228,7 +222,7 @@ public class LoginMenu extends JFrame{
 			DatabaseOperation.Login(account, password);
 			LoginMenu.this.dispose();
 			ListMenu listmenu=new ListMenu();
-			listmenu.setVisible(true);
+			listmenu.setVisible(true);*/
 		}
 		
 	}
