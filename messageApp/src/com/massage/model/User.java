@@ -15,8 +15,8 @@ public class User implements Serializable{
 	public String getAccount() {
 		return account;
 	}
-	public void setAccount(String acount) {
-		this.account = acount;
+	public void setAccount(String account) {
+		this.account = account;
 	}
 	public String getPassword() {
 		return password;
@@ -54,14 +54,20 @@ public class User implements Serializable{
 	public void setFriend(Map<String, HashSet<User>> friend) {
 		this.friend = friend;
 	}
-	public User(String acount, String password, String nicheng, String gender, String imagepath, String qianming) {
+	public User(String account, String password, String nicheng, String gender, String imagepath, String qianming) {
 		super();
-		this.account = acount;
+		this.account = account;
 		this.password = password;
 		this.nicheng = nicheng;
 		this.gender = gender;
 		this.imagepath = imagepath;
 		this.qianming = qianming;
+	}
+	
+	public User(String account, String password) {
+		super();
+		this.account = account;
+		this.password = password;
 	}
 	public User() {
 		super();

@@ -8,6 +8,9 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,15 +21,18 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.event.MouseInputListener;
 
+import com.massage.model.Massagebox;
+import com.massage.model.User;
 import com.message.control.DatabaseOperation;
 import com.message.loginmenu.model.ArrayListComboBoxModel;
 import com.message.serverconfig.SocketConfig;
 
-public class LoginMenu extends JFrame{
+public class LoginMenu extends JFrame {
 	private JLabel jb;
 	private JLabel jb1;
 	private JLabel jb2;
@@ -41,17 +47,18 @@ public class LoginMenu extends JFrame{
 	private JButton jbt;
 	private String password;
 	private String account;
+
 	public LoginMenu() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setUndecorated(true);//使Jframe的上面的菜单隐藏
+		setUndecorated(true);// 使Jframe的上面的菜单隐藏
 		setSize(280, 480);
 		setVisible(true);
-		setLocationRelativeTo(null);//使Jframe运行时在桌面正中间显示
+		setLocationRelativeTo(null);// 使Jframe运行时在桌面正中间显示
 		setLayout(null);
-		c = (JPanel)getContentPane(); // 获取JFrame面板
-		c.setOpaque(false);//把JPanel设置为透明 这样就不会遮住后面的背景 这样就能在JPanel随意加组件了
+		c = (JPanel) getContentPane(); // 获取JFrame面板
+		c.setOpaque(false);// 把JPanel设置为透明 这样就不会遮住后面的背景 这样就能在JPanel随意加组件了
 		MouseEventListener mouseListener = new MouseEventListener(this);
-		c.addMouseListener(mouseListener);//给Jframe添加随鼠标移动事件
+		c.addMouseListener(mouseListener);// 给Jframe添加随鼠标移动事件
 		c.addMouseMotionListener(mouseListener);
 		init();
 		setBackground(); // 调用背景方法
@@ -60,11 +67,12 @@ public class LoginMenu extends JFrame{
 	}
 
 	public void setBackground() {
-		ImageIcon icon = new ImageIcon("resources/images/beijin.jpg"); //添加图片
+		ImageIcon icon = new ImageIcon("resources/images/beijin.jpg"); // 添加图片
 		JLabel background = new JLabel(icon);
-		this.getLayeredPane().add(background, new Integer(Integer.MIN_VALUE));//把背景图片添加到分层窗格的最底层作为背景
+		this.getLayeredPane().add(background, new Integer(Integer.MIN_VALUE));// 把背景图片添加到分层窗格的最底层作为背景
 		background.setBounds(0, 0, icon.getIconWidth(), icon.getIconHeight());
 	}
+
 	public void init() {
 		jb = new JLabel("用户名: ");
 		jb.setBounds(25, 220, 60, 25);
@@ -99,30 +107,30 @@ public class LoginMenu extends JFrame{
 		jb5.setBounds(218, 2, icon1.getIconWidth(), icon1.getIconHeight());
 		jb5.addMouseListener(new MouseListener() {
 			public void mouseReleased(MouseEvent e) {
-				
+
 			}
-			
+
 			public void mousePressed(MouseEvent e) {
-				
+
 			}
-			
+
 			public void mouseExited(MouseEvent e) {
-				
+
 			}
-			
+
 			public void mouseEntered(MouseEvent e) {
-				
+
 			}
-			
+
 			public void mouseClicked(MouseEvent e) {
 				LoginMenu.this.setExtendedState(JFrame.ICONIFIED);
 			}
 		});
 		c.add(jb5);
 
-		List<String> list=new ArrayList<>();
+		List<String> list = new ArrayList<>();
 		list.add("88888888");
-		ArrayListComboBoxModel model=new ArrayListComboBoxModel(list);
+		ArrayListComboBoxModel model = new ArrayListComboBoxModel(list);
 		jaccount = new JComboBox(model);
 		jaccount.setEditable(true);
 		jaccount.setBounds(75, 220, 170, 25);
@@ -132,7 +140,7 @@ public class LoginMenu extends JFrame{
 		jb1.setBounds(25, 250, 60, 25);
 		c.add(jb1);
 
-		jpassword = new JPasswordField();
+		jpassword = new JPasswordField("88888888");
 		jpassword.setBounds(75, 250, 170, 25);
 		c.add(jpassword);
 
@@ -155,10 +163,10 @@ public class LoginMenu extends JFrame{
 		jbt = new JButton("登录");
 		jbt.setBackground(getBackground().GREEN);
 		jbt.setBounds(25, 310, 80, 30);
-		Mouseclickevent actionListener=new Mouseclickevent();
+		Mouseclickevent actionListener = new Mouseclickevent();
 		jbt.addActionListener(actionListener);
 		c.add(jbt);
-		
+
 		jbt = new JButton("注册");
 		jbt.setBackground(getBackground().GREEN);
 		jbt.setBounds(172, 310, 80, 30);
@@ -177,6 +185,7 @@ public class LoginMenu extends JFrame{
 		@Override
 		public void mouseClicked(MouseEvent e) {
 		}
+
 		@Override
 		public void mousePressed(MouseEvent e) {
 			origin.x = e.getX();
@@ -186,10 +195,12 @@ public class LoginMenu extends JFrame{
 		@Override
 		public void mouseReleased(MouseEvent e) {
 		}
+
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			this.frame.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 		}
+
 		@Override
 		public void mouseExited(MouseEvent e) {
 			this.frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -205,28 +216,39 @@ public class LoginMenu extends JFrame{
 		public void mouseMoved(MouseEvent e) {
 		}
 	}
-	class Mouseclickevent implements ActionListener{
-		
+
+	class Mouseclickevent implements ActionListener {
+		private ObjectInputStream in;
+		private ObjectOutputStream out;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String account=jaccount.getSelectedItem().toString().trim();
-			String password=jpassword.getText().toString().trim();
-			System.out.println(account);
-			System.out.println(password);
-			/*try {
-				Socket client=new Socket(SocketConfig.serverIP, SocketConfig.port);//点击登录，连接服务器
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			account = jaccount.getSelectedItem().toString().trim();
+			password = jpassword.getText().toString().trim();
+			if (account.length() <= 3) {
+				JOptionPane.showMessageDialog(LoginMenu.this, "账号不能少于3位", "温馨提示", JOptionPane.INFORMATION_MESSAGE);
+				jaccount.requestFocus();
+				return;
+			} else {
+				try {
+					Socket client = new Socket(SocketConfig.serverIP, SocketConfig.port);// 点击登录，连接服务器
+					in = new ObjectInputStream(client.getInputStream());
+					out = new ObjectOutputStream(client.getOutputStream());
+					User loginuser = new User(account, password);
+					Massagebox massage = new Massagebox(loginuser, null, "login", null, null);
+					out.writeObject(massage);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				ListMenu listmenu = new ListMenu();
+				listmenu.setVisible(true);
+
 			}
-			DatabaseOperation.Login(account, password);
-			LoginMenu.this.dispose();
-			ListMenu listmenu=new ListMenu();
-			listmenu.setVisible(true);*/
 		}
-		
 	}
-public static void main(String[] args) {
-	LoginMenu m=new LoginMenu();
-}
+
+	public static void main(String[] args) {
+		LoginMenu m = new LoginMenu();
+	}
 }
