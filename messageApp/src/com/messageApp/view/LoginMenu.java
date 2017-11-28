@@ -26,10 +26,10 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.event.MouseInputListener;
 
-import com.massage.model.Massagebox;
-import com.massage.model.User;
 import com.message.control.DatabaseOperation;
 import com.message.loginmenu.model.ArrayListComboBoxModel;
+import com.message.model.Messagebox;
+import com.message.model.User;
 import com.message.serverconfig.SocketConfig;
 
 public class LoginMenu extends JFrame {
@@ -44,9 +44,13 @@ public class LoginMenu extends JFrame {
 	private JPasswordField jpassword;
 	private JCheckBox jc;
 	private JCheckBox jc1;
-	private JButton jbt;
+	private JButton jlogin;
+	private JButton jregister;
 	private String password;
 	private String account;
+	private Socket client;
+	private ObjectInputStream in;
+	private ObjectOutputStream out;
 
 	public LoginMenu() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -129,7 +133,7 @@ public class LoginMenu extends JFrame {
 		c.add(jb5);
 
 		List<String> list = new ArrayList<>();
-		list.add("88888888");
+		list.add("111111");
 		ArrayListComboBoxModel model = new ArrayListComboBoxModel(list);
 		jaccount = new JComboBox(model);
 		jaccount.setEditable(true);
@@ -140,7 +144,7 @@ public class LoginMenu extends JFrame {
 		jb1.setBounds(25, 250, 60, 25);
 		c.add(jb1);
 
-		jpassword = new JPasswordField("88888888");
+		jpassword = new JPasswordField("111111");
 		jpassword.setBounds(75, 250, 170, 25);
 		c.add(jpassword);
 
@@ -160,17 +164,77 @@ public class LoginMenu extends JFrame {
 		jb3.setBounds(185, 279, 60, 25);
 		c.add(jb3);
 
-		jbt = new JButton("登录");
-		jbt.setBackground(getBackground().GREEN);
-		jbt.setBounds(25, 310, 80, 30);
-		Mouseclickevent actionListener = new Mouseclickevent();
-		jbt.addActionListener(actionListener);
-		c.add(jbt);
+		jlogin = new JButton("登录");
+		jlogin.setBackground(getBackground().GREEN);
+		jlogin.setBounds(25, 310, 80, 30);
+		jlogin.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
 
-		jbt = new JButton("注册");
-		jbt.setBackground(getBackground().GREEN);
-		jbt.setBounds(172, 310, 80, 30);
-		c.add(jbt);
+				//表单验证
+				account = jaccount.getSelectedItem().toString().trim();
+				password = jpassword.getText().toString().trim();
+				if (account.length() <= 3) {
+					JOptionPane.showMessageDialog(LoginMenu.this, "账号不能少于3位", "温馨提示", JOptionPane.INFORMATION_MESSAGE);
+					jaccount.requestFocus();
+					return;
+				} else {//建立连接
+					try {
+						if(client==null) {
+						client = new Socket(SocketConfig.serverIP, SocketConfig.port);// 点击登录，连接服务器
+						in = new ObjectInputStream(client.getInputStream());
+						out = new ObjectOutputStream(client.getOutputStream());
+						}
+						//向服务器发送登录者的账号与密码
+						User loginuser = new User(account, password);
+						Messagebox massage = new Messagebox(loginuser, null, "login", null, null);
+						out.writeObject(massage);
+						out.flush();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}//接收服务器发来的校验消息，执行相应程序
+					try {
+						Object flag=in.readObject();
+						System.out.println(flag);
+						if(flag==null) {
+							JOptionPane.showMessageDialog(LoginMenu.this, "账号与密码不匹配", "温馨提示", JOptionPane.ERROR_MESSAGE);
+						}else {
+							ListMenu listmenu = new ListMenu();
+							listmenu.setVisible(true);
+							LoginMenu.this.dispose();
+						}
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					}
+			
+			}
+		});
+		c.add(jlogin);
+
+		jregister = new JButton("注册");
+		jregister.setBackground(getBackground().GREEN);
+		jregister.setBounds(172, 310, 80, 30);
+		jregister.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+					if(client==null) {
+					try {
+						client = new Socket(SocketConfig.serverIP, SocketConfig.port);
+						in = new ObjectInputStream(client.getInputStream());
+						out = new ObjectOutputStream(client.getOutputStream());
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					}
+				RegisterMenu registermenu=new RegisterMenu(in,out);
+				registermenu.setVisible(true);
+			}
+		});
+		c.add(jregister);
 	}
 
 	class MouseEventListener implements MouseInputListener {
@@ -217,36 +281,6 @@ public class LoginMenu extends JFrame {
 		}
 	}
 
-	class Mouseclickevent implements ActionListener {
-		private ObjectInputStream in;
-		private ObjectOutputStream out;
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			account = jaccount.getSelectedItem().toString().trim();
-			password = jpassword.getText().toString().trim();
-			if (account.length() <= 3) {
-				JOptionPane.showMessageDialog(LoginMenu.this, "账号不能少于3位", "温馨提示", JOptionPane.INFORMATION_MESSAGE);
-				jaccount.requestFocus();
-				return;
-			} else {
-				try {
-					Socket client = new Socket(SocketConfig.serverIP, SocketConfig.port);// 点击登录，连接服务器
-					in = new ObjectInputStream(client.getInputStream());
-					out = new ObjectOutputStream(client.getOutputStream());
-					User loginuser = new User(account, password);
-					Massagebox massage = new Massagebox(loginuser, null, "login", null, null);
-					out.writeObject(massage);
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				ListMenu listmenu = new ListMenu();
-				listmenu.setVisible(true);
-
-			}
-		}
-	}
 
 	public static void main(String[] args) {
 		LoginMenu m = new LoginMenu();

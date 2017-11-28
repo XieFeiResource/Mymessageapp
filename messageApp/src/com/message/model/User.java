@@ -1,4 +1,4 @@
-package com.massage.model;
+package com.message.model;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -8,6 +8,7 @@ public class User implements Serializable{
 	private String account;
 	private String password;
 	private String nicheng;
+	private int age;
 	private String gender;
 	private String imagepath;
 	private String qianming;
@@ -17,6 +18,13 @@ public class User implements Serializable{
 	}
 	public void setAccount(String account) {
 		this.account = account;
+	}
+	
+	public int getAge() {
+		return age;
+	}
+	public void setAge(int age) {
+		this.age = age;
 	}
 	public String getPassword() {
 		return password;
@@ -54,16 +62,18 @@ public class User implements Serializable{
 	public void setFriend(Map<String, HashSet<User>> friend) {
 		this.friend = friend;
 	}
-	public User(String account, String password, String nicheng, String gender, String imagepath, String qianming) {
+	
+	public User(String account, String password, String nicheng, int age, String gender, String imagepath,
+			String qianming) {
 		super();
 		this.account = account;
 		this.password = password;
 		this.nicheng = nicheng;
+		this.age = age;
 		this.gender = gender;
 		this.imagepath = imagepath;
 		this.qianming = qianming;
 	}
-	
 	public User(String account, String password) {
 		super();
 		this.account = account;
@@ -74,8 +84,8 @@ public class User implements Serializable{
 	}
 	@Override
 	public String toString() {
-		return "User [acount=" + account + ", password=" + password + ", nicheng=" + nicheng + ", gender=" + gender
-				+ ", imagepath=" + imagepath + ", qianming=" + qianming + "]";
+		return "User [account=" + account + ", password=" + password + ", nicheng=" + nicheng + ", age=" + age
+				+ ", gender=" + gender + ", imagepath=" + imagepath + ", qianming=" + qianming + "]";
 	}
 	
 }

@@ -6,9 +6,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import com.massage.model.Massagebox;
-import com.massage.model.User;
 import com.message.control.DatabaseOperation;
+import com.message.model.Messagebox;
+import com.message.model.User;
 import com.message.serverconfig.SocketConfig;
 
 import javax.swing.JLabel;
@@ -125,13 +125,12 @@ public class ServerMenu extends JFrame {
 	 * 为所有button添加一个监听器
 	 */
 	class Allbuttonlistener implements ActionListener {
-		private Socket c;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == button) {
 				try {
-					server = new ServerSocket(SocketConfig.port);
+					server = new ServerSocket(SocketConfig.port);//开启服务器
 					JOptionPane.showMessageDialog(ServerMenu.this, "服务器开启成功！", "温馨提示", JOptionPane.INFORMATION_MESSAGE);
 					button.setEnabled(false);
 				} catch (IOException e1) {
@@ -142,9 +141,10 @@ public class ServerMenu extends JFrame {
 					public void run() {
 						while (true) {
 							try {
-								c = server.accept();
+								Socket c = server.accept();
+								System.out.println(c.getInetAddress());
+								ObjectOutputStream out = new ObjectOutputStream(c.getOutputStream());//一定要是out在上，不然会报错
 								ObjectInputStream in = new ObjectInputStream(c.getInputStream());
-								ObjectOutputStream out = new ObjectOutputStream(c.getOutputStream());
 								CurrentClientStread thisClientThread = new CurrentClientStread(in, out);
 								thisClientThread.start();
 							} catch (Exception e1) {
@@ -161,7 +161,7 @@ public class ServerMenu extends JFrame {
 	class CurrentClientStread extends Thread {
 		private ObjectInputStream in;
 		private ObjectOutputStream out;
-		private Massagebox m;
+		private Messagebox m;
 
 		public CurrentClientStread(ObjectInputStream in, ObjectOutputStream out) {
 			this.in = in;
@@ -172,21 +172,32 @@ public class ServerMenu extends JFrame {
 		public void run() {
 			try {
 				while (true) {
-					m = (Massagebox) in.readObject();
+					m = (Messagebox) in.readObject();
 					if (m.getMessagetype().equals("login")) {
 						Dologinmessage(m);
+					}else if(m.getMessagetype().equals("register")) {
+						Doregistermessage(m);
 					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		private void Dologinmessage(Messagebox m) {
+			User loginuser = DatabaseOperation.Login(m.getSender().getAccount(), m.getSender().getPassword());
+			try {
+				out.writeObject(loginuser);
+				out.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		private void Doregistermessage(Messagebox m) {
+			Boolean result= DatabaseOperation.Register(m.getSender());
+			System.out.println(result);
+		}
 	}
 
-	public void Dologinmessage(Massagebox m) {
-		User loginuser = DatabaseOperation.Login(m.getSender().getAccount(), m.getSender().getPassword());
-		System.out.println(loginuser);
-		System.out.println(m);
-
-	}
 }

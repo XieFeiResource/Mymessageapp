@@ -1,8 +1,8 @@
-package com.massage.model;
+package com.message.model;
 
 import java.io.Serializable;
 
-public class Massagebox implements Serializable{
+public class Messagebox implements Serializable{
 	private User sender;
 	private User receiver;
 	private String messagetype;
@@ -38,7 +38,7 @@ public class Massagebox implements Serializable{
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public Massagebox(User sender, User receiver, String messagetype, String time, String content) {
+	public Messagebox(User sender, User receiver, String messagetype, String time, String content) {
 		super();
 		this.sender = sender;
 		this.receiver = receiver;
@@ -46,7 +46,13 @@ public class Massagebox implements Serializable{
 		this.time = time;
 		this.content = content;
 	}
-	public Massagebox() {
+	
+	public Messagebox(User sender, String messagetype) {
+		super();
+		this.sender = sender;
+		this.messagetype = messagetype;
+	}
+	public Messagebox() {
 		super();
 	}
 	@Override

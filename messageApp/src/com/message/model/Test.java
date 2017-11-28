@@ -1,4 +1,4 @@
-package com.massage.model;
+package com.message.model;
 
 public class Test {
 
