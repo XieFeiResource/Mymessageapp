@@ -130,7 +130,7 @@ public class ServerMenu extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == button) {
 				try {
-					server = new ServerSocket(SocketConfig.port);//开启服务器
+					server = new ServerSocket(SocketConfig.port);// 开启服务器
 					JOptionPane.showMessageDialog(ServerMenu.this, "服务器开启成功！", "温馨提示", JOptionPane.INFORMATION_MESSAGE);
 					button.setEnabled(false);
 				} catch (IOException e1) {
@@ -143,7 +143,7 @@ public class ServerMenu extends JFrame {
 							try {
 								Socket c = server.accept();
 								System.out.println(c.getInetAddress());
-								ObjectOutputStream out = new ObjectOutputStream(c.getOutputStream());//一定要是out在上，不然会报错
+								ObjectOutputStream out = new ObjectOutputStream(c.getOutputStream());// 一定要是out在上，不然会报错
 								ObjectInputStream in = new ObjectInputStream(c.getInputStream());
 								CurrentClientStread thisClientThread = new CurrentClientStread(in, out);
 								thisClientThread.start();
@@ -175,7 +175,7 @@ public class ServerMenu extends JFrame {
 					m = (Messagebox) in.readObject();
 					if (m.getMessagetype().equals("login")) {
 						Dologinmessage(m);
-					}else if(m.getMessagetype().equals("register")) {
+					} else if (m.getMessagetype().equals("register")) {
 						Doregistermessage(m);
 					}
 				}
@@ -183,20 +183,31 @@ public class ServerMenu extends JFrame {
 				e.printStackTrace();
 			}
 		}
+
 		private void Dologinmessage(Messagebox m) {
 			User loginuser = DatabaseOperation.Login(m.getSender().getAccount(), m.getSender().getPassword());
+			Messagebox resultmessagebox = new Messagebox();
+			resultmessagebox.setReceiver(loginuser);
 			try {
-				out.writeObject(loginuser);
+				out.writeObject(resultmessagebox);
 				out.flush();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		
+
 		private void Doregistermessage(Messagebox m) {
-			Boolean result= DatabaseOperation.Register(m.getSender());
-			System.out.println(result);
+			Boolean result = DatabaseOperation.Register(m.getSender());
+			Messagebox resultmessagebox = new Messagebox();
+			resultmessagebox.setContent(result.toString());
+			try {
+				out.writeObject(resultmessagebox);
+				out.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

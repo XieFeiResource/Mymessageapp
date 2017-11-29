@@ -83,9 +83,15 @@ public class DatabaseOperation {
 		return true;
 	}
 	public static void main(String[] args) {
-		User user1=new User("111111", "111111", "张三", 3, "男", "resources/Usertuxiang", "你好张三");
-		User user2=new User("444444", "444444", "李四", 4, "男", "resources/Usertuxiang", "你好李四");
-	
+		User user1=new User("111111", "111111", "张三", 3, "男", "resources/tu/tx1.jpg", "你好张三");
+		User user2=new User("444444", "444444", "李四", 4, "男", "resources/tu/tx2.jpg", "你好李四");
+		User user3=new User("333333", "333333", "王五", 5, "男", "resources/tu/tx3.jpg", "你好王五");
+		Map<String, HashSet<User>> friend=new HashMap<>();
+		HashSet<User> value=new HashSet<>();
+		value.add(user2);
+		value.add(user3);
+		friend.put("大学室友", value);
+		user1.setFriend(friend);
 		try {
 			ObjectOutputStream  out=new ObjectOutputStream(new FileOutputStream("databases/"+user1.getAccount()+".qq"));
 			out.writeObject(user1);
@@ -94,6 +100,11 @@ public class DatabaseOperation {
 			
 			out=new ObjectOutputStream(new FileOutputStream("databases/"+user2.getAccount()+".qq"));
 			out.writeObject(user2);
+			out.flush();
+			out.close();
+			
+			out=new ObjectOutputStream(new FileOutputStream("databases/"+user3.getAccount()+".qq"));
+			out.writeObject(user3);
 			out.flush();
 			out.close();
 		} catch (Exception e) {

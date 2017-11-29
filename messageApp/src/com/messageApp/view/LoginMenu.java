@@ -1,20 +1,14 @@
 package com.messageApp.view;
 
-import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -24,10 +18,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.event.MouseInputListener;
-
-import com.message.control.DatabaseOperation;
-import com.message.loginmenu.model.ArrayListComboBoxModel;
 import com.message.model.Messagebox;
 import com.message.model.User;
 import com.message.serverconfig.SocketConfig;
@@ -85,56 +75,24 @@ public class LoginMenu extends JFrame {
 		ImageIcon icon = new ImageIcon("resources/images/chacha.jpg");
 		jb4 = new JLabel(icon);
 		jb4.setBounds(250, 2, icon.getIconWidth(), icon.getIconHeight());
-		jb4.addMouseListener(new MouseListener() {
-			public void mouseReleased(MouseEvent e) {
-
-			}
-
-			public void mousePressed(MouseEvent e) {
-
-			}
-
-			public void mouseExited(MouseEvent e) {
-
-			}
-
-			public void mouseEntered(MouseEvent e) {
-			}
-
+		jb4.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				System.exit(0);
+				// System.exit(0);
+				LoginMenu.this.dispose();
 			}
 		});
 		c.add(jb4);
 		ImageIcon icon1 = new ImageIcon("resources/images/suoxiao.jpg");
 		jb5 = new JLabel(icon1);
 		jb5.setBounds(218, 2, icon1.getIconWidth(), icon1.getIconHeight());
-		jb5.addMouseListener(new MouseListener() {
-			public void mouseReleased(MouseEvent e) {
-
-			}
-
-			public void mousePressed(MouseEvent e) {
-
-			}
-
-			public void mouseExited(MouseEvent e) {
-
-			}
-
-			public void mouseEntered(MouseEvent e) {
-
-			}
-
+		jb5.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				LoginMenu.this.setExtendedState(JFrame.ICONIFIED);
+				LoginMenu.this.setExtendedState(JFrame.ICONIFIED);// 使窗口最小化
 			}
 		});
 		c.add(jb5);
 
-		List<String> list = new ArrayList<>();
-		list.add("111111");
-		ArrayListComboBoxModel model = new ArrayListComboBoxModel(list);
+		String[] model = { "111111", "444444", };
 		jaccount = new JComboBox(model);
 		jaccount.setEditable(true);
 		jaccount.setBounds(75, 220, 170, 25);
@@ -171,21 +129,21 @@ public class LoginMenu extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				//表单验证
+				// 表单验证
 				account = jaccount.getSelectedItem().toString().trim();
 				password = jpassword.getText().toString().trim();
 				if (account.length() <= 3) {
 					JOptionPane.showMessageDialog(LoginMenu.this, "账号不能少于3位", "温馨提示", JOptionPane.INFORMATION_MESSAGE);
 					jaccount.requestFocus();
 					return;
-				} else {//建立连接
+				} else {// 建立连接
 					try {
-						if(client==null) {
-						client = new Socket(SocketConfig.serverIP, SocketConfig.port);// 点击登录，连接服务器
-						in = new ObjectInputStream(client.getInputStream());
-						out = new ObjectOutputStream(client.getOutputStream());
+						if (client == null) {
+							client = new Socket(SocketConfig.serverIP, SocketConfig.port);// 点击登录，连接服务器
+							in = new ObjectInputStream(client.getInputStream());
+							out = new ObjectOutputStream(client.getOutputStream());
 						}
-						//向服务器发送登录者的账号与密码
+						// 向服务器发送登录者的账号与密码
 						User loginuser = new User(account, password);
 						Messagebox massage = new Messagebox(loginuser, null, "login", null, null);
 						out.writeObject(massage);
@@ -193,23 +151,24 @@ public class LoginMenu extends JFrame {
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
-					}//接收服务器发来的校验消息，执行相应程序
+					} // 接收服务器发来的校验消息，执行相应程序
 					try {
-						Object flag=in.readObject();
-						System.out.println(flag);
-						if(flag==null) {
-							JOptionPane.showMessageDialog(LoginMenu.this, "账号与密码不匹配", "温馨提示", JOptionPane.ERROR_MESSAGE);
-						}else {
-							ListMenu listmenu = new ListMenu();
+						Messagebox result = (Messagebox) in.readObject();
+						System.out.println(result);
+						if (result == null) {
+							JOptionPane.showMessageDialog(LoginMenu.this, "账号与密码不匹配", "温馨提示",
+									JOptionPane.ERROR_MESSAGE);
+						} else {
+							ListMenu listmenu = new ListMenu(result.getReceiver());
 							listmenu.setVisible(true);
-							LoginMenu.this.dispose();
+							LoginMenu.this.setVisible(false);
 						}
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					}
-			
+				}
+
 			}
 		});
 		c.add(jlogin);
@@ -220,7 +179,7 @@ public class LoginMenu extends JFrame {
 		jregister.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-					if(client==null) {
+				if (client == null) {
 					try {
 						client = new Socket(SocketConfig.serverIP, SocketConfig.port);
 						in = new ObjectInputStream(client.getInputStream());
@@ -229,15 +188,16 @@ public class LoginMenu extends JFrame {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					}
-				RegisterMenu registermenu=new RegisterMenu(in,out);
+				}
+				RegisterMenu registermenu = new RegisterMenu(in, out, LoginMenu.this);
 				registermenu.setVisible(true);
+				LoginMenu.this.setVisible(false);
 			}
 		});
 		c.add(jregister);
 	}
 
-	class MouseEventListener implements MouseInputListener {
+	class MouseEventListener extends MouseAdapter {
 		Point origin;
 		LoginMenu frame;
 
@@ -247,27 +207,9 @@ public class LoginMenu extends JFrame {
 		}
 
 		@Override
-		public void mouseClicked(MouseEvent e) {
-		}
-
-		@Override
 		public void mousePressed(MouseEvent e) {
 			origin.x = e.getX();
 			origin.y = e.getY();
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			this.frame.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			this.frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 
 		@Override
@@ -275,14 +217,9 @@ public class LoginMenu extends JFrame {
 			Point p = this.frame.getLocation();
 			this.frame.setLocation(p.x + (e.getX() - origin.x), p.y + (e.getY() - origin.y));
 		}
-
-		@Override
-		public void mouseMoved(MouseEvent e) {
-		}
 	}
 
-
 	public static void main(String[] args) {
-		LoginMenu m = new LoginMenu();
+		LoginMenu loginmenu = new LoginMenu();
 	}
 }
