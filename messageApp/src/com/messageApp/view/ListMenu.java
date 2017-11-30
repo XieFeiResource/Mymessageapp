@@ -32,7 +32,8 @@ public class ListMenu extends JFrame {
 	private JTree tree_1;
 	private ChatMenu chat;
 	private Messagebox chatmessage;
-	private Map<String, ChatMenu> allchatmenu=new HashMap<>();
+	private Map<String, ChatMenu> allchatmenu = new HashMap<>();
+
 	/**
 	 * Launch the application.
 	 */
@@ -53,43 +54,44 @@ public class ListMenu extends JFrame {
 	 * Create the frame.
 	 */
 	public ListMenu(User loginuser) {
-		this.loginuser=loginuser;
+		this.loginuser = loginuser;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setIconImage(Toolkit.getDefaultToolkit().getImage("resources/images/tittle.jpeg"));
 		setTitle("蜡笔畅聊");
-		setResizable(false);//不可改变窗体大小
+		setResizable(false);// 不可改变窗体大小
 		setSize(318, 633);
-		setLocationRelativeTo(null);//使Jframe运行时在桌面正中间显示
+		setLocationRelativeTo(null);// 使Jframe运行时在桌面正中间显示
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(0, 104, 312, 503);
 		contentPane.add(tabbedPane);
-		
+
 		JScrollPane scrollPane = new JScrollPane();
-		tabbedPane.addTab("会话",new ImageIcon("resources/images/会话.png"), scrollPane, "会话");
-		
+		tabbedPane.addTab("会话", new ImageIcon("resources/images/会话.png"), scrollPane, "会话");
+
 		JTree tree = new JTree();
 		scrollPane.setViewportView(tree);
-		
+
 		JScrollPane scrollPane_1 = new JScrollPane();
 		tabbedPane.addTab("联系人", new ImageIcon("resources/images/联系人.png"), scrollPane_1, "联系人");
-		
-		DefaultMutableTreeNode root=new DefaultMutableTreeNode("root");
-		Map<String, HashSet<User>> friends=loginuser.getFriend();
-		Set<String> zuming=friends.keySet();
-		Iterator<String> it=zuming.iterator();
-		while(it.hasNext()) {
-			String groupname=it.next();
-			DefaultMutableTreeNode group=new DefaultMutableTreeNode(groupname);
-			HashSet<User> members=friends.get(groupname);
-			Iterator<User> it1=members.iterator();
-			while(it1.hasNext()) {
-				User user=it1.next();
-				DefaultMutableTreeNode friend=new DefaultMutableTreeNode(user.getNicheng()+"["+user.getAccount()+"]");
+
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
+		Map<String, HashSet<User>> friends = loginuser.getFriend();
+		Set<String> zuming = friends.keySet();
+		Iterator<String> it = zuming.iterator();
+		while (it.hasNext()) {
+			String groupname = it.next();
+			DefaultMutableTreeNode group = new DefaultMutableTreeNode(groupname);
+			HashSet<User> members = friends.get(groupname);
+			Iterator<User> it1 = members.iterator();
+			while (it1.hasNext()) {
+				User user = it1.next();
+				DefaultMutableTreeNode friend = new DefaultMutableTreeNode(
+						user.getNicheng() + "[" + user.getAccount() + "]");
 				group.add(friend);
 			}
 			root.add(group);
@@ -99,21 +101,21 @@ public class ListMenu extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				// TODO Auto-generated method stub
-				if(e.getButton()==1&&e.getClickCount()==2) {
-					TreePath  path=ListMenu.this.tree_1.getSelectionPath();
-					DefaultMutableTreeNode lastNode=(DefaultMutableTreeNode)path.getLastPathComponent();
-					if(lastNode.isLeaf()) {
-						//上面是解析用户双击之后判断是不是双击的某一个用户名上的这个Node
-						String username=lastNode.toString();
-						String account=username.substring(username.indexOf("[")+1, username.lastIndexOf("]"));
-						if(allchatmenu.containsKey(account)) {
+				if (e.getButton() == 1 && e.getClickCount() == 2) {
+					TreePath path = ListMenu.this.tree_1.getSelectionPath();
+					DefaultMutableTreeNode lastNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+					if (lastNode.isLeaf()) {
+						// 上面是解析用户双击之后判断是不是双击的某一个用户名上的这个Node
+						String username = lastNode.toString();
+						String account = username.substring(username.indexOf("[") + 1, username.lastIndexOf("]"));
+						if (allchatmenu.containsKey(account)) {
 							allchatmenu.get(account).setVisible(true);
-						}else {
-						User receiver=new User();
-						receiver.setAccount(account);
-						chat=new ChatMenu(ListMenu.this.loginuser,receiver);
-						chat.setVisible(true);
-						allchatmenu.put(account, chat);
+						} else {
+							User receiver = new User();
+							receiver.setAccount(account);
+							chat = new ChatMenu(ListMenu.this.loginuser, receiver);
+							chat.setVisible(true);
+							allchatmenu.put(account, chat);
 						}
 					}
 				}
@@ -121,42 +123,44 @@ public class ListMenu extends JFrame {
 		});
 		tree_1.setRootVisible(false);
 		scrollPane_1.setViewportView(tree_1);
-		
+
 		JScrollPane scrollPane_2 = new JScrollPane();
-		tabbedPane.addTab("群聊",  new ImageIcon("resources/images/群聊.png"), scrollPane_2, "群聊");
-		
+		tabbedPane.addTab("群聊", new ImageIcon("resources/images/群聊.png"), scrollPane_2, "群聊");
+
 		JTree tree_2 = new JTree();
 		scrollPane_2.setViewportView(tree_2);
-		
+
 		JLabel lblNewLabel = new JLabel(new ImageIcon(loginuser.getImagepath()));
 		lblNewLabel.setBounds(0, 0, 86, 100);
 		contentPane.add(lblNewLabel);
-		
+
 		JTextArea textArea = new JTextArea(loginuser.getNicheng());
 		textArea.setEditable(false);
 		textArea.setBounds(86, 0, 108, 32);
 		contentPane.add(textArea);
-		
+
 		JTextArea textArea_1 = new JTextArea(loginuser.getQianming());
 		textArea_1.setEditable(false);
 		textArea_1.setBounds(86, 39, 176, 61);
 		contentPane.add(textArea_1);
-		
-		//开一个线程用来接收其他用户发送来的消息
+
+		// 开一个线程用来接收其他用户发送来的消息
 		(new Thread() {
 			@Override
 			public void run() {
-				Messagebox message=null;
+				Messagebox message = null;
 				try {
-					while((message=(Messagebox) LoginMenu.in.readObject())!=null) {
-						if(allchatmenu.containsKey(message.getSender().getAccount())) {
-							chat.getTextArea().append(message.getSender().getNicheng()+"\t"+message.getTime()+"\r\n"+message.getContent()+"\r\n"+"\r\n");
+					while ((message = (Messagebox) LoginMenu.in.readObject()) != null) {
+						if (allchatmenu.containsKey(message.getSender().getAccount())) {
+							chat.getTextArea().append(message.getSender().getNicheng() + "\t" + message.getTime()
+									+ "\r\n" + message.getContent() + "\r\n" + "\r\n");
 							allchatmenu.get(message.getSender().getAccount()).setVisible(true);
-						}else {
-							chat=new ChatMenu(ListMenu.this.loginuser,message.getSender());
-						chat.getTextArea().append(message.getSender().getNicheng()+"\t"+message.getTime()+"\r\n"+message.getContent()+"\r\n"+"\r\n");
-						chat.setVisible(true);
-						allchatmenu.put(message.getSender().getAccount(), chat);
+						} else {
+							chat = new ChatMenu(ListMenu.this.loginuser, message.getSender());
+							chat.getTextArea().append(message.getSender().getNicheng() + "\t" + message.getTime()
+									+ "\r\n" + message.getContent() + "\r\n" + "\r\n");
+							chat.setVisible(true);
+							allchatmenu.put(message.getSender().getAccount(), chat);
 						}
 					}
 				} catch (Exception e) {
@@ -166,5 +170,5 @@ public class ListMenu extends JFrame {
 			}
 		}).start();
 	}
-	
+
 }
