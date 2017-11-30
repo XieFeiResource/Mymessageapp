@@ -92,6 +92,13 @@ public class DatabaseOperation {
 		value.add(user3);
 		friend.put("大学室友", value);
 		user1.setFriend(friend);
+		
+		Map<String, HashSet<User>> friend1=new HashMap<>();
+		HashSet<User> value1=new HashSet<>();
+		value1.add(user1);
+		value1.add(user2);
+		friend1.put("大学同学", value1);
+		user3.setFriend(friend1);
 		try {
 			ObjectOutputStream  out=new ObjectOutputStream(new FileOutputStream("databases/"+user1.getAccount()+".qq"));
 			out.writeObject(user1);

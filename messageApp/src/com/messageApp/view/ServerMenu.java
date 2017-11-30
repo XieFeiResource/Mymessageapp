@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.xml.crypto.Data;
 
 import com.message.control.DatabaseOperation;
 import com.message.model.Messagebox;
@@ -25,6 +26,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
 
@@ -33,6 +37,7 @@ public class ServerMenu extends JFrame {
 	private JPanel contentPane;
 	private JButton button;
 	private ServerSocket server;
+	private Map<String, ObjectOutputStream> allonlineuser = new HashMap<>();
 
 	/**
 	 * Launch the application.
@@ -173,10 +178,13 @@ public class ServerMenu extends JFrame {
 			try {
 				while (true) {
 					m = (Messagebox) in.readObject();
+					System.out.println(m);
 					if (m.getMessagetype().equals("login")) {
 						Dologinmessage(m);
 					} else if (m.getMessagetype().equals("register")) {
 						Doregistermessage(m);
+					} else if (m.getMessagetype().equals("chatmessage")) {
+						Dochatmessage(m);
 					}
 				}
 			} catch (Exception e) {
@@ -186,6 +194,10 @@ public class ServerMenu extends JFrame {
 
 		private void Dologinmessage(Messagebox m) {
 			User loginuser = DatabaseOperation.Login(m.getSender().getAccount(), m.getSender().getPassword());
+			if (loginuser != null) {
+				allonlineuser.put(loginuser.getAccount(), out);
+			}
+			System.out.println(allonlineuser.size());
 			Messagebox resultmessagebox = new Messagebox();
 			resultmessagebox.setReceiver(loginuser);
 			try {
@@ -208,6 +220,25 @@ public class ServerMenu extends JFrame {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+
+		private void Dochatmessage(Messagebox m) {
+			User receiver = m.getReceiver();
+			String account = receiver.getAccount();
+			User receiver1 = DatabaseOperation.searchFriendsByCondition(account);
+			ObjectOutputStream out = allonlineuser.get(account);
+			try {
+				Messagebox message = new Messagebox();
+				message.setContent(m.getContent());
+				message.setTime(new Date().toLocaleString());
+				message.setSender(m.getSender());
+				out.writeObject(message);
+				out.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
 	}
 

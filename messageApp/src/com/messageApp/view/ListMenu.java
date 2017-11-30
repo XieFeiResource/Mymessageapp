@@ -4,6 +4,8 @@ import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -21,6 +23,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import com.message.model.Messagebox;
 import com.message.model.User;
 
 public class ListMenu extends JFrame {
@@ -28,6 +31,8 @@ public class ListMenu extends JFrame {
 	private JPanel contentPane;
 	private JTree tree_1;
 	private ChatMenu chat;
+	private Messagebox chatmessage;
+	private Map<String, ChatMenu> allchatmenu=new HashMap<>();
 	/**
 	 * Launch the application.
 	 */
@@ -84,7 +89,7 @@ public class ListMenu extends JFrame {
 			Iterator<User> it1=members.iterator();
 			while(it1.hasNext()) {
 				User user=it1.next();
-				DefaultMutableTreeNode friend=new DefaultMutableTreeNode(user.getNicheng());
+				DefaultMutableTreeNode friend=new DefaultMutableTreeNode(user.getNicheng()+"["+user.getAccount()+"]");
 				group.add(friend);
 			}
 			root.add(group);
@@ -100,10 +105,15 @@ public class ListMenu extends JFrame {
 					if(lastNode.isLeaf()) {
 						//上面是解析用户双击之后判断是不是双击的某一个用户名上的这个Node
 						String username=lastNode.toString();
-						System.out.println(username);
-						if(chat==null) {
-						chat=new ChatMenu();
+						String account=username.substring(username.indexOf("[")+1, username.lastIndexOf("]"));
+						if(allchatmenu.containsKey(account)) {
+							allchatmenu.get(account).setVisible(true);
+						}else {
+						User receiver=new User();
+						receiver.setAccount(account);
+						chat=new ChatMenu(ListMenu.this.loginuser,receiver);
 						chat.setVisible(true);
+						allchatmenu.put(account, chat);
 						}
 					}
 				}
@@ -131,5 +141,30 @@ public class ListMenu extends JFrame {
 		textArea_1.setEditable(false);
 		textArea_1.setBounds(86, 39, 176, 61);
 		contentPane.add(textArea_1);
+		
+		//开一个线程用来接收其他用户发送来的消息
+		(new Thread() {
+			@Override
+			public void run() {
+				Messagebox message=null;
+				try {
+					while((message=(Messagebox) LoginMenu.in.readObject())!=null) {
+						if(allchatmenu.containsKey(message.getSender().getAccount())) {
+							chat.getTextArea().append(message.getSender().getNicheng()+"\t"+message.getTime()+"\r\n"+message.getContent()+"\r\n"+"\r\n");
+							allchatmenu.get(message.getSender().getAccount()).setVisible(true);
+						}else {
+							chat=new ChatMenu(ListMenu.this.loginuser,message.getSender());
+						chat.getTextArea().append(message.getSender().getNicheng()+"\t"+message.getTime()+"\r\n"+message.getContent()+"\r\n"+"\r\n");
+						chat.setVisible(true);
+						allchatmenu.put(message.getSender().getAccount(), chat);
+						}
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}).start();
 	}
+	
 }

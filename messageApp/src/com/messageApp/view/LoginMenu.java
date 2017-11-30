@@ -39,8 +39,8 @@ public class LoginMenu extends JFrame {
 	private String password;
 	private String account;
 	private Socket client;
-	private ObjectInputStream in;
-	private ObjectOutputStream out;
+	public static ObjectInputStream in;
+	public static ObjectOutputStream out;
 
 	public LoginMenu() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -154,10 +154,10 @@ public class LoginMenu extends JFrame {
 					} // 接收服务器发来的校验消息，执行相应程序
 					try {
 						Messagebox result = (Messagebox) in.readObject();
-						System.out.println(result);
-						if (result == null) {
+						if (result.getReceiver() == null) {
 							JOptionPane.showMessageDialog(LoginMenu.this, "账号与密码不匹配", "温馨提示",
 									JOptionPane.ERROR_MESSAGE);
+							return;
 						} else {
 							ListMenu listmenu = new ListMenu(result.getReceiver());
 							listmenu.setVisible(true);
