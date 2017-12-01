@@ -17,6 +17,7 @@ import javax.swing.border.EmptyBorder;
 
 import com.message.model.Messagebox;
 import com.message.model.User;
+import java.awt.Font;
 
 public class ChatMenu extends JFrame {
 
@@ -27,6 +28,7 @@ public class ChatMenu extends JFrame {
 	private JTextArea textArea;
 	private User user;
 	private User receiver;
+	private JButton button;
 	private AllbuttonListener buttonlistener;
 
 	public JTextArea getTextArea() {
@@ -88,6 +90,12 @@ public class ChatMenu extends JFrame {
 		panel_1.setBounds(0, 227, 327, 40);
 		contentPane.add(panel_1);
 		panel_1.setLayout(null);
+		
+		button = new JButton("抖动");
+		button.setFont(new Font("黑体", Font.PLAIN, 14));
+		button.setBounds(0, 10, 67, 23);
+		button.addActionListener(buttonlistener);
+		panel_1.add(button);
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setBounds(330, 0, 171, 392);
@@ -121,8 +129,60 @@ public class ChatMenu extends JFrame {
 				textArea.append(user.getNicheng() + "\t" + new Date().toLocaleString() + "\r\n" + chatmessage + "\r\n"
 						+ "\r\n");
 				textArea_1.setText("");
+			}else if(e.getSource()==button) {
+				System.out.println("dianjile");
+				Messagebox shakebox=new Messagebox();
+				shakebox.setSender(user);
+				shakebox.setReceiver(receiver);
+				shakebox.setMessagetype("shake");
+				try {
+					LoginMenu.out.writeObject(shakebox);
+					LoginMenu.out.flush();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				//自身先抖动
+				shakestart();
 			}
 		}
 
+	}
+	public void shakestart() {
+		Shakewindow shakestart=new Shakewindow();
+		shakestart.start();
+		
+	}
+	class Shakewindow extends Thread{
+		int currentx=ChatMenu.this.getX();
+		int currenty=ChatMenu.this.getY();
+		
+		int fudu=10;
+		@Override
+		public void run() {
+			ChatMenu.this.setLocation(currentx-fudu, currenty);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			ChatMenu.this.setLocation(currentx, currenty+fudu);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			ChatMenu.this.setLocation(currentx+fudu, currenty);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			ChatMenu.this.setLocation(currentx, currenty-fudu);
+			ChatMenu.this.setLocation(currentx, currenty);
+		}
 	}
 }

@@ -185,13 +185,33 @@ public class ServerMenu extends JFrame {
 						Doregistermessage(m);
 					} else if (m.getMessagetype().equals("chatmessage")) {
 						Dochatmessage(m);
+					}else if(m.getMessagetype().equals("shake")) {
+						Doshakemessage(m);
 					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-
+		/*
+		 * 返回的消息要有发送者（便于在对方找到接收消息的窗口）
+		 * 消息类型（都是一个线程收对方发送的消息盒子，便于区分chatmessage或其他类型，便于之后操作）
+		 */
+		private void Doshakemessage(Messagebox m) {
+			User receiver=m.getReceiver();
+			ObjectOutputStream out=allonlineuser.get(receiver.getAccount());
+			Messagebox resulefromserver=new Messagebox();
+			resulefromserver.setMessagetype("shake");
+			resulefromserver.setSender(m.getSender());
+			try {
+				out.writeObject(resulefromserver);
+				out.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		private void Dologinmessage(Messagebox m) {
 			User loginuser = DatabaseOperation.Login(m.getSender().getAccount(), m.getSender().getPassword());
 			if (loginuser != null) {
@@ -232,6 +252,7 @@ public class ServerMenu extends JFrame {
 				message.setContent(m.getContent());
 				message.setTime(new Date().toLocaleString());
 				message.setSender(m.getSender());
+				message.setMessagetype("chatmessage");
 				out.writeObject(message);
 				out.flush();
 			} catch (IOException e) {

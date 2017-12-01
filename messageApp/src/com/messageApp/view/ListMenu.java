@@ -25,12 +25,15 @@ import javax.swing.tree.TreePath;
 
 import com.message.model.Messagebox;
 import com.message.model.User;
+import javax.swing.JButton;
+import java.awt.Font;
 
 public class ListMenu extends JFrame {
 	private User loginuser;
 	private JPanel contentPane;
 	private JTree tree_1;
 	private ChatMenu chat;
+	private JButton button;
 	private Messagebox chatmessage;
 	private Map<String, ChatMenu> allchatmenu = new HashMap<>();
 
@@ -143,6 +146,11 @@ public class ListMenu extends JFrame {
 		textArea_1.setEditable(false);
 		textArea_1.setBounds(86, 39, 176, 61);
 		contentPane.add(textArea_1);
+		
+		JButton button = new JButton("添加好友");
+		button.setFont(new Font("黑体", Font.PLAIN, 14));
+		button.setBounds(204, 9, 93, 23);
+		contentPane.add(button);
 
 		// 开一个线程用来接收其他用户发送来的消息
 		(new Thread() {
@@ -152,14 +160,24 @@ public class ListMenu extends JFrame {
 				try {
 					while ((message = (Messagebox) LoginMenu.in.readObject()) != null) {
 						if (allchatmenu.containsKey(message.getSender().getAccount())) {
-							chat.getTextArea().append(message.getSender().getNicheng() + "\t" + message.getTime()
-									+ "\r\n" + message.getContent() + "\r\n" + "\r\n");
-							allchatmenu.get(message.getSender().getAccount()).setVisible(true);
+							if(message.getMessagetype().equals("chatmessage")) {
+								chat.getTextArea().append(message.getSender().getNicheng() + "\t" + message.getTime()
+								+ "\r\n" + message.getContent() + "\r\n" + "\r\n");
+								allchatmenu.get(message.getSender().getAccount()).setVisible(true);
+							}else if(message.getMessagetype().equals("shake")) {//判断来自服务器的消息类型，区别chatmesage.
+								allchatmenu.get(message.getSender().getAccount()).setVisible(true);//先显示在开始抖动
+								allchatmenu.get(message.getSender().getAccount()).shakestart();
+							}
 						} else {
 							chat = new ChatMenu(ListMenu.this.loginuser, message.getSender());
-							chat.getTextArea().append(message.getSender().getNicheng() + "\t" + message.getTime()
-									+ "\r\n" + message.getContent() + "\r\n" + "\r\n");
-							chat.setVisible(true);
+							if(message.getMessagetype().equals("chatmessage")) {
+								chat.getTextArea().append(message.getSender().getNicheng() + "\t" + message.getTime()
+								+ "\r\n" + message.getContent() + "\r\n" + "\r\n");
+								chat.setVisible(true);
+							}else if(message.getMessagetype().equals("shake")) {
+								chat.setVisible(true);
+								chat.shakestart();
+							}
 							allchatmenu.put(message.getSender().getAccount(), chat);
 						}
 					}
