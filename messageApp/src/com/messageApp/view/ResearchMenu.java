@@ -13,6 +13,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -34,6 +35,7 @@ public class ResearchMenu extends JFrame {
 	private JTextArea textArea_1;
 	private JLabel label_1;
 	private User loginuser;
+	private ListMenu listmenu;
 
 	public JTextField getTextField_1() {
 		return textField_1;
@@ -70,9 +72,10 @@ public class ResearchMenu extends JFrame {
 			}
 		});
 	}
-	public ResearchMenu(User loginuser) {
+	public ResearchMenu(ListMenu listmenu,User loginuser) {
 		this();
 		this.loginuser=loginuser;
+		this.listmenu=listmenu;
 	}
 	/**
 	 * Create the frame.
@@ -139,8 +142,13 @@ public class ResearchMenu extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//包装发送的消息盒子，包括发送，接收者和消息类型
+				if(ListMenu.message.getSender()!=null) {
 				Messagebox message=new Messagebox();
 				message.setSender(loginuser);
+				/*
+				 * 此处的ListMenu.message.getSender()是上面通过查找好友，服务器返回的查找信息，
+				 * 其中的sender是要加的好友信息
+				 */
 				message.setReceiver(ListMenu.message.getSender());
 				message.setMessagetype("addfriend");
 				try {//将消息发送到服务器
@@ -154,9 +162,13 @@ public class ResearchMenu extends JFrame {
 				//现在己方添加
 				DefaultMutableTreeNode friend = new DefaultMutableTreeNode(
 						ListMenu.message.getSender().getNicheng() + "[" + ListMenu.message.getSender().getAccount() + "]");
-				System.out.println(friend);
-				ListMenu.model.insertNodeInto(friend, ListMenu.root, 2);
+				System.out.println("^^^"+friend);
+				ListMenu.root.add(friend);
+				ResearchMenu.this.listmenu.getTree_1().updateUI();
 				
+				}else {
+					JOptionPane.showMessageDialog(ResearchMenu.this, "该账户不存在，不能添加！", "温馨提示", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
 		contentPane.add(button_1);

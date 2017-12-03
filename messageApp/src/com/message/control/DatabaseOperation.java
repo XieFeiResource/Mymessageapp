@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.message.model.Messagebox;
 import com.message.model.User;
 
 public class DatabaseOperation {
@@ -82,14 +83,48 @@ public class DatabaseOperation {
 		}
 	}
 
-	public static Boolean addFriend(User user, String account, String zuming) {
-		User searcheduser = searchFriendsByCondition(account);
-		Map<String, HashSet<User>> friend = user.getFriend();
+	public static Messagebox addFriend(Messagebox m) {
+		if(m.getReceiver()!= null) {
+		Map<String, HashSet<User>> friend = m.getSender().getFriend();//获取发送者的好友列表
 		HashSet<User> fri = new HashSet<>();
-		fri.add(searcheduser);
-		friend = new HashMap<>();
-		friend.put(zuming, fri);
-		return true;
+		fri.add(m.getReceiver());
+		friend.put("新加好友", fri);
+		
+		Map<String, HashSet<User>> friend1 = m.getReceiver().getFriend();//获取接收者的好友列表
+		HashSet<User> fri1 = new HashSet<>();
+		fri1.add(m.getSender());
+		friend1.put("新加好友", fri1);
+		
+		//将改好的好友列表信息，更新到发送，接受者的好友列表信息，即覆盖原有的好友列表信息
+		m.getSender().setFriend(friend);
+		m.getReceiver().setFriend(friend1);
+		//将更新的信息写入到数据库
+		ObjectOutputStream out;
+		try {
+			out = new ObjectOutputStream(
+					new FileOutputStream("databases/" + m.getSender().getAccount() + ".qq"));
+			out.writeObject(m.getSender());
+			out.flush();
+			out.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			out = new ObjectOutputStream(
+					new FileOutputStream("databases/" + m.getReceiver().getAccount() + ".qq"));
+			out.writeObject(m.getReceiver());
+			out.flush();
+			out.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return m;
+		}else {
+			return null;
+		}
 	}
 
 	public static void main(String[] args) {
@@ -102,9 +137,9 @@ public class DatabaseOperation {
 		HashSet<User> value2 = new HashSet<>();
 		value2.add(user4);
 		value.add(user2);
-		value.add(user3);
+		//value.add(user3);
 		friend.put("大学室友", value);
-		friend.put("新加好友", value2);
+		friend.put("好友", value2);
 		user1.setFriend(friend);
 
 		Map<String, HashSet<User>> friend1 = new HashMap<>();
@@ -112,11 +147,11 @@ public class DatabaseOperation {
 		HashSet<User> value3 = new HashSet<>();
 		value3.add(user4);
 		value1.add(user2);
-		value1.add(user1);
+		//value1.add(user1);
 		friend1.put("大学同学", value1);
-		friend1.put("新加好友", value3);
+		friend1.put("好友", value3);
 		user3.setFriend(friend1);
-		//给user1配置群聊信息
+		// 给user1配置群聊信息
 		Map<String, HashSet<User>> myGroups = new HashMap<>();
 
 		HashSet<User> qun1Friends = new HashSet<>();
@@ -134,21 +169,21 @@ public class DatabaseOperation {
 
 		myGroups.put("王者车队", qun2Friends);
 		user1.setMyGroups(myGroups);
-		//给user3配置群聊信息
+		// 给user3配置群聊信息
 		Map<String, HashSet<User>> myGroups1 = new HashMap<>();
-		
+
 		HashSet<User> qun1Friends1 = new HashSet<>();
-		
+
 		qun1Friends1.add(user1);
 		qun1Friends1.add(user2);
-		
+
 		myGroups1.put("吃鸡大队", qun1Friends1);
-		
+
 		HashSet<User> qun2Friends2 = new HashSet<>();
-		
+
 		qun2Friends2.add(user1);
 		qun2Friends2.add(user2);
-		
+
 		myGroups1.put("王者车队", qun2Friends2);
 		user3.setMyGroups(myGroups1);
 
@@ -168,7 +203,7 @@ public class DatabaseOperation {
 			out.writeObject(user3);
 			out.flush();
 			out.close();
-			
+
 			out = new ObjectOutputStream(new FileOutputStream("databases/" + user4.getAccount() + ".qq"));
 			out.writeObject(user4);
 			out.flush();

@@ -67,6 +67,10 @@ public class ListMenu extends JFrame {
 		});
 	}
 
+	public JTree getTree_1() {
+		return tree_1;
+	}
+
 	/**
 	 * Create the frame.
 	 */
@@ -84,7 +88,7 @@ public class ListMenu extends JFrame {
 		contentPane.setLayout(null);
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane.setBounds(0, 104, 312, 503);
+		tabbedPane.setBounds(0, 104, 312, 457);
 		contentPane.add(tabbedPane);
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -97,24 +101,7 @@ public class ListMenu extends JFrame {
 		tabbedPane.addTab("联系人", new ImageIcon("resources/images/联系人.png"), scrollPane_1, "联系人");
 
 		root = new DefaultMutableTreeNode("root");
-		Map<String, HashSet<User>> friends = loginuser.getFriend();
-		if(friends!=null) {
-		Set<String> zuming = friends.keySet();
-		Iterator<String> it = zuming.iterator();
-		while (it.hasNext()) {
-			String groupname = it.next();
-			DefaultMutableTreeNode group = new DefaultMutableTreeNode(groupname);
-			HashSet<User> members = friends.get(groupname);
-			Iterator<User> it1 = members.iterator();
-			while (it1.hasNext()) {
-				User user = it1.next();
-				DefaultMutableTreeNode friend = new DefaultMutableTreeNode(
-						user.getNicheng() + "[" + user.getAccount() + "]");
-				group.add(friend);
-			}
-			root.add(group);
-		}
-		}
+		Showfriendlist(loginuser);//抽象为方法，便于之后用
 		tree_1 = new JTree(root);
 		TreeModel model=tree_1.getModel();
 		tree_1.addMouseListener(new MouseAdapter() {
@@ -184,23 +171,23 @@ public class ListMenu extends JFrame {
 		JTextArea textArea_1 = new JTextArea(loginuser.getQianming());
 		textArea_1.setEditable(false);
 		textArea_1.setBorder(BorderFactory.createLineBorder(Color.red));
-		textArea_1.setBounds(86, 39, 168, 61);
+		textArea_1.setBounds(86, 42, 168, 61);
 		contentPane.add(textArea_1);
 		
 		button = new JButton("添加好友");
 		button.setFont(new Font("黑体", Font.PLAIN, 14));
-		button.setBounds(204, 9, 93, 23);
+		button.setBounds(0, 571, 97, 23);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				research=new ResearchMenu(ListMenu.this.loginuser);
+				research=new ResearchMenu(ListMenu.this ,ListMenu.this.loginuser);
 				research.setVisible(true);
 			}
 		});
 		contentPane.add(button);
 		
 		button_1 = new JButton("查找");
-		button_1.setBounds(244, 39, 68, 23);
+		button_1.setBounds(107, 571, 68, 23);
 		button_1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -210,6 +197,17 @@ public class ListMenu extends JFrame {
 			}
 		});
 		contentPane.add(button_1);
+		
+		JButton button_2 = new JButton("修改资料");
+		button_2.setFont(new Font("黑体", Font.PLAIN, 12));
+		button_2.setBounds(181, 571, 93, 23);
+		button_2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		});
+		contentPane.add(button_2);
 
 		// 开一个线程用来接收其他用户发送来的消息
 		(new Thread() {
@@ -217,10 +215,13 @@ public class ListMenu extends JFrame {
 			public void run() {
 				try {
 					while ((message = (Messagebox) LoginMenu.in.readObject()) != null) {
-						System.out.println(message);
+						System.out.println("fromservermessage"+message);
 						if(message.getMessagetype().equals("addfriend")) {
 							DefaultMutableTreeNode friend = new DefaultMutableTreeNode(
 									message.getSender().getNicheng() + "[" + message.getSender().getAccount() + "]");
+							System.out.println(friend);
+							root.add(friend);
+							tree_1.updateUI();
 						}
 						if(message.getMessagetype().equals("groupmessage")) {//以群名为单位开启窗口，而不像是和chatmessage一样以发送者为单位开启窗口。
 						if (allgroupmenu.containsKey(message.getSender().getQianming())) {
@@ -279,4 +280,24 @@ public class ListMenu extends JFrame {
 		}).start();
 	}
 
+	public void Showfriendlist(User loginuser) {
+		Map<String, HashSet<User>> friends = loginuser.getFriend();
+		if(friends!=null) {
+		Set<String> zuming = friends.keySet();
+		Iterator<String> it = zuming.iterator();
+		while (it.hasNext()) {
+			String groupname = it.next();
+			DefaultMutableTreeNode group = new DefaultMutableTreeNode(groupname);
+			HashSet<User> members = friends.get(groupname);
+			Iterator<User> it1 = members.iterator();
+			while (it1.hasNext()) {
+				User user = it1.next();
+				DefaultMutableTreeNode friend = new DefaultMutableTreeNode(
+						user.getNicheng() + "[" + user.getAccount() + "]");
+				group.add(friend);
+			}
+			root.add(group);
+		}
+		}
+	}
 }

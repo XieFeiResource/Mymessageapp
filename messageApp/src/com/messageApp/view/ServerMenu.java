@@ -191,7 +191,7 @@ public class ServerMenu extends JFrame {
 						Doshakemessage(m);
 					}else if(m.getMessagetype().equals("research")) {
 						Doresearchmessage(m);
-					}else if(m.getMessagetype().equals("add")) {
+					}else if(m.getMessagetype().equals("addfriend")) {
 						Doaddfriendmessage(m);
 					}else if(m.getMessagetype().equals("groupmessage")) {
 						Dogroupmessage(m);
@@ -229,10 +229,13 @@ public class ServerMenu extends JFrame {
 			}
 		}
 		private void Doaddfriendmessage(Messagebox m) {
+			Messagebox result1=DatabaseOperation.addFriend(m);
+			System.out.println(result1);
 			ObjectOutputStream out=allonlineuser.get(m.getReceiver().getAccount());
 			try {
-				out.writeObject(m);
+				out.writeObject(result1);
 				out.flush();
+				System.out.println("qingqiufachu");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
