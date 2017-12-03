@@ -1,16 +1,19 @@
 package com.messageApp.view;
 
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,10 +24,13 @@ import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import com.message.model.Messagebox;
 import com.message.model.User;
+
 import javax.swing.JButton;
 import java.awt.Font;
 
@@ -32,14 +38,22 @@ public class ListMenu extends JFrame {
 	private User loginuser;
 	private JPanel contentPane;
 	private JTree tree_1;
+	private JTree tree_2;
 	private ChatMenu chat;
+	private ChatMenu chat1;
 	private JButton button;
-	private Messagebox chatmessage;
+	private JButton button_1;
+	private ChatMenu  c;//点击群名时创建的一个窗口
+	private ResearchMenu research;
+	public static Messagebox message = null;;
 	private Map<String, ChatMenu> allchatmenu = new HashMap<>();
-
+	private Map<String, ChatMenu> allgroupmenu = new HashMap<>();
+	public static DefaultTreeModel model;
+	public static DefaultMutableTreeNode root;
 	/**
 	 * Launch the application.
 	 */
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -82,8 +96,9 @@ public class ListMenu extends JFrame {
 		JScrollPane scrollPane_1 = new JScrollPane();
 		tabbedPane.addTab("联系人", new ImageIcon("resources/images/联系人.png"), scrollPane_1, "联系人");
 
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
+		root = new DefaultMutableTreeNode("root");
 		Map<String, HashSet<User>> friends = loginuser.getFriend();
+		if(friends!=null) {
 		Set<String> zuming = friends.keySet();
 		Iterator<String> it = zuming.iterator();
 		while (it.hasNext()) {
@@ -99,7 +114,9 @@ public class ListMenu extends JFrame {
 			}
 			root.add(group);
 		}
+		}
 		tree_1 = new JTree(root);
+		TreeModel model=tree_1.getModel();
 		tree_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -130,35 +147,106 @@ public class ListMenu extends JFrame {
 		JScrollPane scrollPane_2 = new JScrollPane();
 		tabbedPane.addTab("群聊", new ImageIcon("resources/images/群聊.png"), scrollPane_2, "群聊");
 
-		JTree tree_2 = new JTree();
+		DefaultMutableTreeNode  root1=new DefaultMutableTreeNode("root");
+		
+		for(String groupName :loginuser.getMyGroups().keySet())
+		{
+			DefaultMutableTreeNode  group=new DefaultMutableTreeNode(groupName);
+			root1.add(group);
+		}
+		tree_2 = new JTree(root1);
+		tree_2.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(e.getClickCount()==2&&e.getButton()==1) {
+					System.out.println("laile");
+					ChatMenu  c=new ChatMenu(ListMenu.this.loginuser,tree_2.getSelectionPath().getLastPathComponent().toString());
+					allgroupmenu.put(tree_2.getSelectionPath().getLastPathComponent().toString(), c);
+					System.out.println("^^^  "+allgroupmenu.size());
+					c.setVisible(true);
+				}
+			}
+		});
+		tree_2.setRootVisible(false);
 		scrollPane_2.setViewportView(tree_2);
 
 		JLabel lblNewLabel = new JLabel(new ImageIcon(loginuser.getImagepath()));
 		lblNewLabel.setBounds(0, 0, 86, 100);
+		lblNewLabel.setBorder(BorderFactory.createLineBorder(Color.red));
 		contentPane.add(lblNewLabel);
 
 		JTextArea textArea = new JTextArea(loginuser.getNicheng());
 		textArea.setEditable(false);
+		textArea.setBorder(BorderFactory.createLineBorder(Color.red));
 		textArea.setBounds(86, 0, 108, 32);
 		contentPane.add(textArea);
 
 		JTextArea textArea_1 = new JTextArea(loginuser.getQianming());
 		textArea_1.setEditable(false);
-		textArea_1.setBounds(86, 39, 176, 61);
+		textArea_1.setBorder(BorderFactory.createLineBorder(Color.red));
+		textArea_1.setBounds(86, 39, 168, 61);
 		contentPane.add(textArea_1);
 		
-		JButton button = new JButton("添加好友");
+		button = new JButton("添加好友");
 		button.setFont(new Font("黑体", Font.PLAIN, 14));
 		button.setBounds(204, 9, 93, 23);
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				research=new ResearchMenu(ListMenu.this.loginuser);
+				research.setVisible(true);
+			}
+		});
 		contentPane.add(button);
+		
+		button_1 = new JButton("查找");
+		button_1.setBounds(244, 39, 68, 23);
+		button_1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("dianjiele ");
+				research=new ResearchMenu();
+				research.setVisible(true);
+			}
+		});
+		contentPane.add(button_1);
 
 		// 开一个线程用来接收其他用户发送来的消息
 		(new Thread() {
 			@Override
 			public void run() {
-				Messagebox message = null;
 				try {
 					while ((message = (Messagebox) LoginMenu.in.readObject()) != null) {
+						System.out.println(message);
+						if(message.getMessagetype().equals("addfriend")) {
+							DefaultMutableTreeNode friend = new DefaultMutableTreeNode(
+									message.getSender().getNicheng() + "[" + message.getSender().getAccount() + "]");
+						}
+						if(message.getMessagetype().equals("groupmessage")) {//以群名为单位开启窗口，而不像是和chatmessage一样以发送者为单位开启窗口。
+						if (allgroupmenu.containsKey(message.getSender().getQianming())) {
+							allgroupmenu.get(message.getSender().getQianming()).getTextArea().append(message.getSender().getNicheng() + "\t" + message.getTime()
+								+ "\r\n" + message.getContent() + "\r\n" + "\r\n");
+							allgroupmenu.get(message.getSender().getQianming()).setVisible(true);
+						} else {
+							chat1=new ChatMenu(ListMenu.this.loginuser, message.getSender().getQianming());
+							chat1.getTextArea().append(message.getSender().getNicheng() + "\t" + message.getTime()
+							+ "\r\n" + message.getContent() + "\r\n" + "\r\n");
+							chat1.setVisible(true);
+							allgroupmenu.put(message.getSender().getQianming(), chat1);
+							System.out.println(allgroupmenu.size());
+						}
+						}else {
+						
+						if(message.getMessagetype().equals("research")) {
+							if(message.getSender()!=null) {
+								research.getTextArea_1().setText("查询结果如下！");
+								research.getTextField_1().setText(message.getSender().getNicheng());
+								research.getLblNewLabel().setIcon(new ImageIcon(message.getSender().getImagepath()));
+								research.getTextArea().setText(message.getSender().getQianming());
+							}else {
+								research.getTextArea_1().setText("该账户不存在！");
+							}
+						}else {
 						if (allchatmenu.containsKey(message.getSender().getAccount())) {
 							if(message.getMessagetype().equals("chatmessage")) {
 								chat.getTextArea().append(message.getSender().getNicheng() + "\t" + message.getTime()
@@ -179,6 +267,8 @@ public class ListMenu extends JFrame {
 								chat.shakestart();
 							}
 							allchatmenu.put(message.getSender().getAccount(), chat);
+						}
+						}
 						}
 					}
 				} catch (Exception e) {

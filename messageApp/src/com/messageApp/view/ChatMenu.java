@@ -29,6 +29,7 @@ public class ChatMenu extends JFrame {
 	private User user;
 	private User receiver;
 	private JButton button;
+	private String quming;
 	private AllbuttonListener buttonlistener;
 
 	public JTextArea getTextArea() {
@@ -43,9 +44,14 @@ public class ChatMenu extends JFrame {
 		this();
 		this.user = user;
 		this.receiver = receiver;
-
 	}
 
+	public ChatMenu(User user, String quming) {
+		this();
+		this.user = user;
+		this.quming = quming;
+		setTitle(quming+"群聊中");
+	}
 	/**
 	 * Create the frame.
 	 */
@@ -114,10 +120,16 @@ public class ChatMenu extends JFrame {
 				// 得到发送的信息，包装成messagebox;
 				String chatmessage = textArea_1.getText();
 				Messagebox chatmessagebox = new Messagebox();
-				chatmessagebox.setContent(chatmessage);
 				chatmessagebox.setSender(user);
+				if(ChatMenu.this.receiver==null) {//包装群消息有发送者，消息类型，消息内容，群名放在了发送者的签名中。
+					chatmessagebox.setMessagetype("groupmessage");
+					chatmessagebox.setContent(chatmessage);
+					user.setQianming(quming);
+				}else {
+				chatmessagebox.setContent(chatmessage);
 				chatmessagebox.setReceiver(receiver);
 				chatmessagebox.setMessagetype("chatmessage");
+				}
 				// 发送消息到服务器
 				try {
 					LoginMenu.out.writeObject(chatmessagebox);

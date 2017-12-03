@@ -1,8 +1,11 @@
 package com.message.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
 
 public class User implements Serializable{
 	private String account;
@@ -13,6 +16,14 @@ public class User implements Serializable{
 	private String imagepath;
 	private String qianming;
 	private Map<String,HashSet<User>> friend;
+	private Map<String,HashSet<User>>  myGroups=new  HashMap<>();
+	
+	public Map<String, HashSet<User>> getMyGroups() {
+		return myGroups;
+	}
+	public void setMyGroups(Map<String, HashSet<User>> myGroups) {
+		this.myGroups = myGroups;
+	}
 	public String getAccount() {
 		return account;
 	}

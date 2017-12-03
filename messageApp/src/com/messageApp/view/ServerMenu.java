@@ -28,7 +28,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
 
@@ -187,9 +189,67 @@ public class ServerMenu extends JFrame {
 						Dochatmessage(m);
 					}else if(m.getMessagetype().equals("shake")) {
 						Doshakemessage(m);
+					}else if(m.getMessagetype().equals("research")) {
+						Doresearchmessage(m);
+					}else if(m.getMessagetype().equals("add")) {
+						Doaddfriendmessage(m);
+					}else if(m.getMessagetype().equals("groupmessage")) {
+						Dogroupmessage(m);
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		private void Dogroupmessage(Messagebox m) {
+			Map<String, HashSet<User>> group=m.getSender().getMyGroups();
+			HashSet<User> friends=group.get(m.getSender().getQianming());
+			System.out.println("size"+friends.size());
+			Messagebox message=new Messagebox();//重新包装消息盒子，包括消息内容，发送者，消息类型，群名放在发送者的签名中。
+			message.setContent(m.getContent());
+			User user1=m.getSender();
+			message.setSender(user1);
+			message.setMessagetype("groupmessage");
+			user1.setQianming(m.getSender().getQianming());
+			message.setTime(new Date().toLocaleString());
+			for (User user : friends) {
+				System.out.println("111^"+user);
+				if(allonlineuser.containsKey(user.getAccount())) {
+					System.out.println("111^^^"+user);
+					ObjectOutputStream out=allonlineuser.get(user.getAccount());
+					try {
+						out.writeObject(message);
+						out.flush();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		private void Doaddfriendmessage(Messagebox m) {
+			ObjectOutputStream out=allonlineuser.get(m.getReceiver().getAccount());
+			try {
+				out.writeObject(m);
+				out.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		private void Doresearchmessage(Messagebox m) {
+			User result=DatabaseOperation.searchFriendsByCondition(m.getContent());
+			System.out.println(result);
+			Messagebox message=new Messagebox();
+			message.setMessagetype("research");
+			message.setSender(result);
+			try {
+				out.writeObject(message);
+				out.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
