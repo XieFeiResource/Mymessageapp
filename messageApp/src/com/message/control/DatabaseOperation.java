@@ -31,6 +31,18 @@ public class DatabaseOperation {
 		}
 
 	}
+	public static User modify(User user) {
+		try {
+			ObjectOutputStream os = new ObjectOutputStream(
+					new FileOutputStream("Databases/" + user.getAccount() + ".qq"));
+			os.writeObject(user);
+			return user;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
 
 	/*
 	 * 注冊用戶的方法
@@ -187,6 +199,17 @@ public class DatabaseOperation {
 		myGroups1.put("王者车队", qun2Friends2);
 		user3.setMyGroups(myGroups1);
 
+		//给user2配置群信息
+		Map<String, HashSet<User>> myGroups2 = new HashMap<>();
+
+		HashSet<User> qun1Friends2 = new HashSet<>();
+
+		qun1Friends2.add(user1);
+		qun1Friends2.add(user3);
+
+		myGroups2.put("吃鸡大队", qun1Friends2);
+		user2.setMyGroups(myGroups2);
+		
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(
 					new FileOutputStream("databases/" + user1.getAccount() + ".qq"));

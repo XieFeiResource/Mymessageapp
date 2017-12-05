@@ -41,10 +41,14 @@ public class ListMenu extends JFrame {
 	private JTree tree_2;
 	private ChatMenu chat;
 	private ChatMenu chat1;
+	private JTextArea textArea;//昵称
+	private JLabel lblNewLabel;//头像
+	private JTextArea textArea_1;//签名
 	private JButton button;
 	private JButton button_1;
 	private ChatMenu  c;//点击群名时创建的一个窗口
 	private ResearchMenu research;
+	private ModifyMenu modifymenu;
 	public static Messagebox message = null;;
 	private Map<String, ChatMenu> allchatmenu = new HashMap<>();
 	private Map<String, ChatMenu> allgroupmenu = new HashMap<>();
@@ -103,7 +107,6 @@ public class ListMenu extends JFrame {
 		root = new DefaultMutableTreeNode("root");
 		Showfriendlist(loginuser);//抽象为方法，便于之后用
 		tree_1 = new JTree(root);
-		TreeModel model=tree_1.getModel();
 		tree_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -120,6 +123,7 @@ public class ListMenu extends JFrame {
 						} else {
 							User receiver = new User();
 							receiver.setAccount(account);
+							receiver.setNicheng(username);
 							chat = new ChatMenu(ListMenu.this.loginuser, receiver);
 							chat.setVisible(true);
 							allchatmenu.put(account, chat);
@@ -157,18 +161,18 @@ public class ListMenu extends JFrame {
 		tree_2.setRootVisible(false);
 		scrollPane_2.setViewportView(tree_2);
 
-		JLabel lblNewLabel = new JLabel(new ImageIcon(loginuser.getImagepath()));
+		lblNewLabel = new JLabel(new ImageIcon(loginuser.getImagepath()));
 		lblNewLabel.setBounds(0, 0, 86, 100);
 		lblNewLabel.setBorder(BorderFactory.createLineBorder(Color.red));
 		contentPane.add(lblNewLabel);
 
-		JTextArea textArea = new JTextArea(loginuser.getNicheng());
+		 textArea = new JTextArea(loginuser.getNicheng());
 		textArea.setEditable(false);
 		textArea.setBorder(BorderFactory.createLineBorder(Color.red));
 		textArea.setBounds(86, 0, 108, 32);
 		contentPane.add(textArea);
 
-		JTextArea textArea_1 = new JTextArea(loginuser.getQianming());
+		textArea_1 = new JTextArea(loginuser.getQianming());
 		textArea_1.setEditable(false);
 		textArea_1.setBorder(BorderFactory.createLineBorder(Color.red));
 		textArea_1.setBounds(86, 42, 168, 61);
@@ -204,7 +208,8 @@ public class ListMenu extends JFrame {
 		button_2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				modifymenu=new ModifyMenu(ListMenu.this.loginuser);
+				modifymenu.setVisible(true);
 			}
 		});
 		contentPane.add(button_2);
@@ -216,11 +221,18 @@ public class ListMenu extends JFrame {
 				try {
 					while ((message = (Messagebox) LoginMenu.in.readObject()) != null) {
 						System.out.println("fromservermessage"+message);
+						if(message.getMessagetype().equals("modifymessage")) {
+							textArea.setText(message.getSender().getNicheng());
+							lblNewLabel.setIcon(new ImageIcon(message.getSender().getImagepath()));
+							textArea_1.setText(message.getSender().getQianming());
+						}
 						if(message.getMessagetype().equals("addfriend")) {
+							DefaultMutableTreeNode friendgroup = new DefaultMutableTreeNode("新加好友");
 							DefaultMutableTreeNode friend = new DefaultMutableTreeNode(
 									message.getSender().getNicheng() + "[" + message.getSender().getAccount() + "]");
+							friendgroup.add(friend);
 							System.out.println(friend);
-							root.add(friend);
+							root.add(friendgroup);
 							tree_1.updateUI();
 						}
 						if(message.getMessagetype().equals("groupmessage")) {//以群名为单位开启窗口，而不像是和chatmessage一样以发送者为单位开启窗口。

@@ -15,7 +15,7 @@ public class User implements Serializable{
 	private String gender;
 	private String imagepath;
 	private String qianming;
-	private Map<String,HashSet<User>> friend;
+	private Map<String,HashSet<User>> friend=new  HashMap<>();
 	private Map<String,HashSet<User>>  myGroups=new  HashMap<>();
 	
 	public Map<String, HashSet<User>> getMyGroups() {

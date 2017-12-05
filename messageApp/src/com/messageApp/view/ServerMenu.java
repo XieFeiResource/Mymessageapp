@@ -195,9 +195,25 @@ public class ServerMenu extends JFrame {
 						Doaddfriendmessage(m);
 					}else if(m.getMessagetype().equals("groupmessage")) {
 						Dogroupmessage(m);
+					}else if(m.getMessagetype().equals("modifymessage")) {
+						Domodifymessage(m);
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		private void Domodifymessage(Messagebox m) {
+			User result=DatabaseOperation.modify(m.getSender());
+			Messagebox message=new Messagebox();
+			message.setSender(result);
+			message.setMessagetype("modifymessage");
+			ObjectOutputStream out=allonlineuser.get(m.getSender().getAccount());
+			try {
+				out.writeObject(message);
+				out.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

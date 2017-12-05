@@ -44,20 +44,20 @@ public class ChatMenu extends JFrame {
 		this();
 		this.user = user;
 		this.receiver = receiver;
+		setTitle("和"+receiver.getNicheng()+"畅聊中");
 	}
 
 	public ChatMenu(User user, String quming) {
 		this();
 		this.user = user;
 		this.quming = quming;
-		setTitle(quming+"群聊中");
+		setTitle(user.getNicheng()+"在"+quming+"群聊中");
 	}
 	/**
 	 * Create the frame.
 	 */
 	public ChatMenu() {
 		setIconImage(Toolkit.getDefaultToolkit().getImage("resources/images/tittle.jpeg"));
-		setTitle("蜡笔畅聊");
 		setBounds(100, 100, 517, 441);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

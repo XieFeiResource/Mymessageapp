@@ -160,10 +160,12 @@ public class ResearchMenu extends JFrame {
 				}
 				
 				//现在己方添加
+				DefaultMutableTreeNode friendgroup = new DefaultMutableTreeNode("新加好友");
 				DefaultMutableTreeNode friend = new DefaultMutableTreeNode(
 						ListMenu.message.getSender().getNicheng() + "[" + ListMenu.message.getSender().getAccount() + "]");
 				System.out.println("^^^"+friend);
-				ListMenu.root.add(friend);
+				friendgroup.add(friend);
+				ListMenu.root.add(friendgroup);
 				ResearchMenu.this.listmenu.getTree_1().updateUI();
 				
 				}else {
